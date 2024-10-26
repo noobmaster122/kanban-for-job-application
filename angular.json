@@ -44,13 +44,20 @@
                   "maximumError": "4kb"
                 }
               ],
+              "optimization": true,
               "outputHashing": "all",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.production.ts"
                 }
-              ]
+              ],
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true,
+              "buildOptimizer": true,
+              "extractLicenses": true,
+              "vendorChunk": false
             },
             "development": {
               "buildOptimizer": false,

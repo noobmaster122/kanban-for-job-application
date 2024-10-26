@@ -1,7 +1,8 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewChild } from '@angular/core';
+/// <reference types="chrome" />
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CardSettingsModel, ColumnsModel, DataSourceChangedEventArgs, DataStateChangeEventArgs, DialogCloseEventArgs, DialogEventArgs, DialogSettingsModel } from '@syncfusion/ej2-angular-kanban';
 import { Card } from 'src/app/models/card.model';
-import { getLocalStorageValuesByPattern, columns, cardSettings, data, dialogSettings } from './data';
+import {  columns, cardSettings, data, dialogSettings, getStoredOrInitialCardsStore } from './data';
 
 
 @Component({
@@ -25,7 +26,7 @@ import { getLocalStorageValuesByPattern, columns, cardSettings, data, dialogSett
   </ejs-kanban>
   `
 })
-export class KanbanComponent implements AfterViewChecked {
+export class KanbanComponent implements OnInit, AfterViewChecked, AfterViewInit {
   @ViewChild('modal') modal!: KanbanComponent;
   @ViewChild('customKanban') customKanban!: any;
 
@@ -33,14 +34,52 @@ export class KanbanComponent implements AfterViewChecked {
   public data: Card[];
   public cardSettings: CardSettingsModel;
   public dialogSettings: DialogSettingsModel;
+  private port!: chrome.runtime.Port;
+
 
   constructor() {
 
     this.columns = columns;
     this.cardSettings = cardSettings;
 
-    this.data = getLocalStorageValuesByPattern('^kanbankanban', data);
+    this.data = getStoredOrInitialCardsStore(data);
+    console.log(this.data);
     this.dialogSettings = dialogSettings;
+
+
+
+  }
+
+  ngOnInit(): void {
+    this.port = chrome.runtime.connect({ name: "angularConnection" });
+
+    this.port.onMessage.addListener((message: any) => {
+      if (message.html) {
+        console.log('content obj', message);
+        const documentElement:Document = this.processHTML(message.html);
+        const element = documentElement.querySelector(".jobs-poster__name strong");
+
+        console.log("HTML content of the current tab:", element?.textContent);
+      }
+    });
+
+    // Request the current HTML content
+    this.getHTML();
+  }
+
+  getHTML(): void {
+    this.port.postMessage({ request: "getCurrentHTML" });
+  }
+
+  processHTML(htmlString: string): Document {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, 'text/html');
+    // Now you can access and manipulate `doc` as a DOM Document
+    return doc;
+}
+
+  ngAfterViewInit(): void {
+    console.log("component and children should load", this);
   }
 
   ngAfterViewChecked(): void {
@@ -62,6 +101,7 @@ export class KanbanComponent implements AfterViewChecked {
 
   dataStateChange(state:any){
     localStorage.setItem('initialDataStore', JSON.stringify(this.customKanban.kanbanData));
+    console.log(this.data);
   }
 
   dataSourceHandler(state:any){

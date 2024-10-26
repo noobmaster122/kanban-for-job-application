@@ -14,23 +14,27 @@ function getLocalStorageItemFromReg(regex:RegExp){
       }
       return null;  
 }
-export function getLocalStorageValuesByPattern(pattern:string, initialDataSource:Card[]) {
+export function getStoredOrInitialCardsStore(data: Card[]): Card[]
+ {
+
+    const DEFAULT_STORE : string = "initialDataStore";
 
     //kanban datastore not found
-    const kanbanDataStoreOrNull = getLocalStorageItemFromReg(new RegExp(pattern));
-    if(kanbanDataStoreOrNull){
-        const kanbanState = JSON.parse(kanbanDataStoreOrNull);
-        return kanbanState.dataSource;
-    }
+    // const kanbanDataStoreOrNull = getLocalStorageItemFromReg(new RegExp(pattern));
+    // if(kanbanDataStoreOrNull){
+    //     const kanbanState = JSON.parse(kanbanDataStoreOrNull);
+    //     return kanbanState.dataSource;
+    // }
 
     //kanban datastore not found but initial datastore is
-    const initialDataStoreOrNull = getLocalStorageItemFromReg(new RegExp('initialDataStore'));
+    const initialDataStoreOrNull = getLocalStorageItemFromReg(new RegExp(DEFAULT_STORE));
     if(initialDataStoreOrNull){
         return JSON.parse(initialDataStoreOrNull);
     }
 
-    localStorage.setItem('initialDataStore', JSON.stringify(initialDataSource));
-    return initialDataSource;
+    localStorage.setItem(DEFAULT_STORE, JSON.stringify(data));
+
+    return data;
 
   }
 

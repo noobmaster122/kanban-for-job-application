@@ -11,7 +11,17 @@
       "128": "assets/icons/icon128.png"
     }
   },
-  "permissions": [],
+  "permissions": ["scripting", "activeTab", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "assets/scripts/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["assets/scripts/content.js"]
+    }
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
   }
