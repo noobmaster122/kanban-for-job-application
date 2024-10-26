@@ -3,6 +3,7 @@ import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnDestro
 import { CardSettingsModel, ColumnsModel, DataSourceChangedEventArgs, DataStateChangeEventArgs, DialogCloseEventArgs, DialogEventArgs, DialogSettingsModel } from '@syncfusion/ej2-angular-kanban';
 import { Card } from 'src/app/models/card.model';
 import {  columns, cardSettings, data, dialogSettings, getStoredOrInitialCardsStore } from './data';
+import { ChromeConnectionService } from 'src/app/services/chrome-connection/chrome-connection.service';
 
 
 @Component({
@@ -34,49 +35,28 @@ export class KanbanComponent implements OnInit, AfterViewChecked, AfterViewInit 
   public data: Card[];
   public cardSettings: CardSettingsModel;
   public dialogSettings: DialogSettingsModel;
-  private port!: chrome.runtime.Port;
 
 
-  constructor() {
+  constructor(private chromeConnectionService : ChromeConnectionService) {
 
     this.columns = columns;
     this.cardSettings = cardSettings;
 
     this.data = getStoredOrInitialCardsStore(data);
-    console.log(this.data);
     this.dialogSettings = dialogSettings;
-
-
-
   }
 
   ngOnInit(): void {
-    this.port = chrome.runtime.connect({ name: "angularConnection" });
+    this.chromeConnectionService.getDocumentObj()
+    .then((res:Document | null) => console.log("am html content", res))
+    .catch((err:any) => console.error(err));
 
-    this.port.onMessage.addListener((message: any) => {
-      if (message.html) {
-        console.log('content obj', message);
-        const documentElement:Document = this.processHTML(message.html);
-        const element = documentElement.querySelector(".jobs-poster__name strong");
-
-        console.log("HTML content of the current tab:", element?.textContent);
-      }
-    });
-
-    // Request the current HTML content
-    this.getHTML();
+    this.chromeConnectionService.getCurrentOpenTabLink()
+    .then((res:string | null) => console.log("am html url", res))
+    .catch((err:any) => console.error(err));
   }
 
-  getHTML(): void {
-    this.port.postMessage({ request: "getCurrentHTML" });
-  }
 
-  processHTML(htmlString: string): Document {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlString, 'text/html');
-    // Now you can access and manipulate `doc` as a DOM Document
-    return doc;
-}
 
   ngAfterViewInit(): void {
     console.log("component and children should load", this);
