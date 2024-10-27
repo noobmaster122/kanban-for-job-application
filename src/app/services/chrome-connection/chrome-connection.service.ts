@@ -7,23 +7,24 @@ import { Injectable } from '@angular/core';
 export class ChromeConnectionService {
   private port!: chrome.runtime.Port;
   private readonly CHROME_CONNECTION : string = "angularConnection";
+  private readonly PORT_EVENT : string = "getCurrentHTML";
 
   constructor() {
     this.port = chrome.runtime.connect({ name: this.CHROME_CONNECTION });
   }
 
-  processHTML(htmlString: string): Document {
+  private processHTML(htmlString: string): Document {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, 'text/html');
     return doc;
   }
 
-  requestHTMLContent(): void {
-    this.port.postMessage({ request: 'getCurrentHTML' });
+  private requestHTMLContent(): void {
+    this.port.postMessage({ request: this.PORT_EVENT });
   }
 
   //use this to get doc object of current tab
-  getDocumentObj(): Promise<Document | null> {
+  public getDocumentObj(): Promise<Document | null> {
     this.requestHTMLContent();//trigger doc retrieval
 
     return new Promise((resolve) => {
@@ -33,7 +34,7 @@ export class ChromeConnectionService {
       });
     });
   }
-  getCurrentOpenTabLink(): Promise<string | null> {
+  public getCurrentOpenTabLink(): Promise<string | null> {
     this.requestHTMLContent();//trigger doc retrieval
 
     return new Promise((resolve) => {
@@ -44,7 +45,7 @@ export class ChromeConnectionService {
   }
 
   //use this func for custom callbacks
-  onMessage(callback: (message: any) => void): void {
+  public onMessage(callback: (message: any) => void): void {
     this.port.onMessage.addListener(callback);
   }
 }

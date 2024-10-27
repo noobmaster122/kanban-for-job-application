@@ -3,8 +3,7 @@ import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnDestro
 import { CardSettingsModel, ColumnsModel, DataSourceChangedEventArgs, DataStateChangeEventArgs, DialogCloseEventArgs, DialogEventArgs, DialogSettingsModel } from '@syncfusion/ej2-angular-kanban';
 import { Card } from 'src/app/models/card.model';
 import {  columns, cardSettings, data, dialogSettings, getStoredOrInitialCardsStore } from './data';
-import { ChromeConnectionService } from 'src/app/services/chrome-connection/chrome-connection.service';
-
+import {JobOfferDetailsImplService} from "../../services/job-offer-extraction/job-offer-details-impl.service";
 
 @Component({
   selector: 'app-kanban',
@@ -37,7 +36,7 @@ export class KanbanComponent implements OnInit, AfterViewChecked, AfterViewInit 
   public dialogSettings: DialogSettingsModel;
 
 
-  constructor(private chromeConnectionService : ChromeConnectionService) {
+  constructor(private jobOfferDetailsImplService: JobOfferDetailsImplService) {
 
     this.columns = columns;
     this.cardSettings = cardSettings;
@@ -47,13 +46,9 @@ export class KanbanComponent implements OnInit, AfterViewChecked, AfterViewInit 
   }
 
   ngOnInit(): void {
-    this.chromeConnectionService.getDocumentObj()
-    .then((res:Document | null) => console.log("am html content", res))
-    .catch((err:any) => console.error(err));
-
-    this.chromeConnectionService.getCurrentOpenTabLink()
-    .then((res:string | null) => console.log("am html url", res))
-    .catch((err:any) => console.error(err));
+    this.jobOfferDetailsImplService.getJobOfferDetails()
+    .then(res => console.log("am from nginit", res))
+    .catch(err => console.error(err));
   }
 
 
