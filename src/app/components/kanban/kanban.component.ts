@@ -4,12 +4,13 @@ import { CardSettingsModel, ColumnsModel, DataSourceChangedEventArgs, DataStateC
 import { Card } from 'src/app/models/card.model';
 import {  columns, cardSettings, data, dialogSettings, getStoredOrInitialCardsStore } from './data';
 import {JobOfferDetailsImplService} from "../../services/job-offer-extraction/job-offer-details-impl.service";
+import {JobOfferDetail} from '../../models/jobOfferDetails.model';
 
 @Component({
   selector: 'app-kanban',
   styleUrls: ['./kanban.component.css'],
   template: `
-  <ejs-kanban #customKanban class='kanban-custom' height="400" width="100%" [dataSource]='data' enablePersistence='true' [dialogSettings]='dialogSettings' [columns]='columns' keyField="status" [cardSettings]='cardSettings' (dataStateChange)= 'dataStateChange($event)' (dataSourceChanged)="dataSourceHandler($event)"  enableTooltip='true'>         
+  <ejs-kanban #customKanban class='kanban-custom' height="400" width="100%" [dataSource]='data' enablePersistence='true' [dialogSettings]='dialogSettings' [columns]='columns' keyField="status" [cardSettings]='cardSettings' (dataStateChange)= 'dataStateChange($event)' (dataSourceChanged)="dataSourceHandler($event)" (dialogOpen)="dialogOpen($event)"  enableTooltip='true'>         
     <ng-template #cardSettingsTemplate let-data> 
       <div class="card-template e-tooltip-text"> 
         <span>{{ data.positionTitle | truncate:8 }}</span>
@@ -26,8 +27,7 @@ import {JobOfferDetailsImplService} from "../../services/job-offer-extraction/jo
   </ejs-kanban>
   `
 })
-export class KanbanComponent implements OnInit, AfterViewChecked, AfterViewInit {
-  @ViewChild('modal') modal!: KanbanComponent;
+export class KanbanComponent implements AfterViewChecked, AfterViewInit {
   @ViewChild('customKanban') customKanban!: any;
 
   public columns: ColumnsModel[];
@@ -44,14 +44,6 @@ export class KanbanComponent implements OnInit, AfterViewChecked, AfterViewInit 
     this.data = getStoredOrInitialCardsStore(data);
     this.dialogSettings = dialogSettings;
   }
-
-  ngOnInit(): void {
-    this.jobOfferDetailsImplService.getJobOfferDetails()
-    .then(res => console.log("am from nginit", res))
-    .catch(err => console.error(err));
-  }
-
-
 
   ngAfterViewInit(): void {
     console.log("component and children should load", this);
@@ -83,4 +75,25 @@ export class KanbanComponent implements OnInit, AfterViewChecked, AfterViewInit 
       state.endEdit();
   }
 
+  async dialogOpen(args: DialogEventArgs) {
+
+    const jobOfferDetails: JobOfferDetail = await this.jobOfferDetailsImplService.getJobOfferDetails();
+    
+    const dialogEle = args.element;
+    if (dialogEle) {
+      const dialogInputs = dialogEle.querySelectorAll('input, textarea'); 
+
+      dialogInputs.forEach((input) => {
+        const htmlInput = input as HTMLInputElement; 
+
+        if (htmlInput.name === 'positionTitle') {
+          htmlInput.value = jobOfferDetails.positionTitle ?? ''; 
+        } else if (htmlInput.name === 'hiringManagerName') {
+          htmlInput.value = jobOfferDetails.hiringManagerName ?? ''; 
+        } else if (htmlInput.name === 'hiringManagerLinkedIn') {
+          htmlInput.value = jobOfferDetails.hiringManagerLinkedIn ?? '#'; 
+        }
+      });
+    }
+  }
 }

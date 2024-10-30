@@ -2,7 +2,7 @@ import { CardSettingsModel, ColumnsModel, DialogSettingsModel } from "@syncfusio
 import { Card } from "../../models/card.model";
 
 
-function getLocalStorageItemFromReg(regex:RegExp){
+export function getLocalStorageItemFromReg(regex:RegExp):string|null{
     for (let i = 0; i < localStorage.length; i++) {
         const key:string|null = localStorage.key(i);
     
