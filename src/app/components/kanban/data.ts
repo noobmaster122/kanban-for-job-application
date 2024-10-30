@@ -2,29 +2,25 @@ import { CardSettingsModel, ColumnsModel, DialogSettingsModel } from "@syncfusio
 import { Card } from "../../models/card.model";
 
 
+//this should be in its own service
 export function getLocalStorageItemFromReg(regex:RegExp):string|null{
+    //parse localstorage items
     for (let i = 0; i < localStorage.length; i++) {
         const key:string|null = localStorage.key(i);
     
         if (!!key && regex.test(key)) {
           const value = localStorage.getItem(key);
-    
-          return value;
+          return value;//get back the cards persisted state
         }
       }
       return null;  
 }
+
+//this should be in its own service
 export function getStoredOrInitialCardsStore(data: Card[]): Card[]
  {
 
     const DEFAULT_STORE : string = "initialDataStore";
-
-    //kanban datastore not found
-    // const kanbanDataStoreOrNull = getLocalStorageItemFromReg(new RegExp(pattern));
-    // if(kanbanDataStoreOrNull){
-    //     const kanbanState = JSON.parse(kanbanDataStoreOrNull);
-    //     return kanbanState.dataSource;
-    // }
 
     //kanban datastore not found but initial datastore is
     const initialDataStoreOrNull = getLocalStorageItemFromReg(new RegExp(DEFAULT_STORE));

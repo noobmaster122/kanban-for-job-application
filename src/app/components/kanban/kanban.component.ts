@@ -10,7 +10,7 @@ import {JobOfferDetail} from '../../models/jobOfferDetails.model';
   selector: 'app-kanban',
   styleUrls: ['./kanban.component.css'],
   template: `
-  <ejs-kanban #customKanban class='kanban-custom' height="400" width="100%" [dataSource]='data' enablePersistence='true' [dialogSettings]='dialogSettings' [columns]='columns' keyField="status" [cardSettings]='cardSettings' (dataStateChange)= 'dataStateChange($event)' (dataSourceChanged)="dataSourceHandler($event)" (dialogOpen)="dialogOpen($event)"  enableTooltip='true'>         
+  <ejs-kanban #customKanban class='kanban-custom' height="400" width="100%" [dataSource]='data' [dialogSettings]='dialogSettings' [columns]='columns' keyField="status" [cardSettings]='cardSettings' (dataStateChange)= 'dataStateChange($event)' (dataSourceChanged)="dataSourceHandler($event)" (dialogOpen)="dialogOpen($event)"  enableTooltip='true'>         
     <ng-template #cardSettingsTemplate let-data> 
       <div class="card-template e-tooltip-text"> 
         <span>{{ data.positionTitle | truncate:8 }}</span>
