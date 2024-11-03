@@ -1,4 +1,3 @@
-// src/app/services/chrome-connection.service.ts
 import { Injectable } from '@angular/core';
 
 @Injectable({
