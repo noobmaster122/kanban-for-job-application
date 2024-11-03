@@ -31,7 +31,6 @@ export function getStoredOrInitialCardsStore(data: Card[]): Card[]
     localStorage.setItem(DEFAULT_STORE, JSON.stringify(data));
 
     return data;
-
   }
 
 export const data: Card[] = [
