@@ -1,7 +1,10 @@
 chrome.runtime.onConnect.addListener((port) => {
-    if (port.name === "angularConnection") {
+    const CHROME_CONNECTION = "angularConnection";
+    const PORT_EVENT = "getCurrentHTML";
+
+    if (port.name === CHROME_CONNECTION) {
         port.onMessage.addListener((msg) => {
-            if (msg.request === "getCurrentHTML") {
+            if (msg.request === PORT_EVENT) {
                 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                     if (tabs[0]?.id && tabs[0]?.url) {
                         chrome.scripting.executeScript(
