@@ -13,7 +13,6 @@ export class JobOfferDetailsImplService implements JobOfferDetails {
 
     const documentObj = await this.chromeConnectionService.getDocumentObj();
     if (!documentObj) throw new Error("Failed to retrieve the document");
-    console.log("am the doc obj", documentObj);
 
     return {
       positionTitle: this.getPositionTitle(documentObj),
