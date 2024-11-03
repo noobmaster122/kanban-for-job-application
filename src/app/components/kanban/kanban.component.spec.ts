@@ -46,17 +46,6 @@ describe('KanbanComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should update empty cards content', () => {
-    const emptyCardElement = document.createElement('div');
-    emptyCardElement.classList.add('e-empty-card');
-    document.body.appendChild(emptyCardElement);
-
-    component.ngAfterViewChecked();
-    expect(emptyCardElement.innerHTML).toContain('Rien à montrer 😔');
-    expect(emptyCardElement.parentElement?.style.textAlign).toBe('center');
-
-    document.body.removeChild(emptyCardElement); // Clean up after test
-  });
 
   it('should save kanban data to localStorage on dataStateChange', () => {
     const localStorageSpy = spyOn(localStorage, 'setItem');

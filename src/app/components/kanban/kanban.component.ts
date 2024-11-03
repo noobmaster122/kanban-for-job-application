@@ -1,10 +1,10 @@
 /// <reference types="chrome" />
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { CardSettingsModel, ColumnsModel, DataSourceChangedEventArgs, DataStateChangeEventArgs, DialogCloseEventArgs, DialogEventArgs, DialogSettingsModel } from '@syncfusion/ej2-angular-kanban';
 import { Card } from 'src/app/models/card.model';
-import {  columns, cardSettings, data, dialogSettings, getStoredOrInitialCardsStore } from './data';
-import {JobOfferDetailsImplService} from "../../services/job-offer-extraction/job-offer-details-impl.service";
-import {JobOfferDetail} from '../../models/jobOfferDetails.model';
+import { columns, cardSettings, data, dialogSettings, getStoredOrInitialCardsStore } from './data';
+import { JobOfferDetailsImplService } from "../../services/job-offer-extraction/job-offer-details-impl.service";
+import { JobOfferDetail } from '../../models/jobOfferDetails.model';
 
 @Component({
   selector: 'app-kanban',
@@ -27,7 +27,7 @@ import {JobOfferDetail} from '../../models/jobOfferDetails.model';
   </ejs-kanban>
   `
 })
-export class KanbanComponent implements AfterViewChecked, AfterViewInit {
+export class KanbanComponent implements AfterViewChecked {
   @ViewChild('customKanban') customKanban!: any;
 
   public columns: ColumnsModel[];
@@ -35,65 +35,50 @@ export class KanbanComponent implements AfterViewChecked, AfterViewInit {
   public cardSettings: CardSettingsModel;
   public dialogSettings: DialogSettingsModel;
 
-
-  constructor(private jobOfferDetailsImplService: JobOfferDetailsImplService) {
-
+  constructor(private jobOfferDetailsImplService: JobOfferDetailsImplService, private renderer: Renderer2) {
     this.columns = columns;
     this.cardSettings = cardSettings;
-
     this.data = getStoredOrInitialCardsStore(data);
     this.dialogSettings = dialogSettings;
   }
 
-  ngAfterViewInit(): void {
-    console.log("component and children should load", this);
-  }
-
   ngAfterViewChecked(): void {
-    const emptyCards = document.querySelectorAll('.e-empty-card');
     const cardsHeaders = document.querySelectorAll('.e-header-text');
 
     cardsHeaders.forEach((element) => {
-      (element as HTMLElement).style.fontSize = '12px';
-
-    });
-
-    emptyCards.forEach((element) => {
-      (element as HTMLElement).innerHTML = 'Rien à montrer 😔';
-      const parentEl = (element as HTMLElement).parentElement;
-      (parentEl as HTMLElement).style.textAlign = 'center';
-
+      this.renderer.setStyle(element, 'fontSize', '12px');
     });
   }
 
-  dataStateChange(state:any){
+  dataStateChange(state: any) {
     localStorage.setItem('initialDataStore', JSON.stringify(this.customKanban.kanbanData));
     console.log(this.data);
   }
 
-  dataSourceHandler(state:any){
-      state.endEdit();
+  dataSourceHandler(state: any) {
+    state.endEdit();
   }
 
   async dialogOpen(args: DialogEventArgs) {
-
     const jobOfferDetails: JobOfferDetail = await this.jobOfferDetailsImplService.getJobOfferDetails();
-    
+
     const dialogEle = args.element;
-    if (dialogEle) {
-      const dialogInputs = dialogEle.querySelectorAll('input, textarea'); 
+    if (!dialogEle) return;
 
-      dialogInputs.forEach((input) => {
-        const htmlInput = input as HTMLInputElement; 
+    const dialogInputs = dialogEle.querySelectorAll('input, textarea');
 
-        if (htmlInput.name === 'positionTitle') {
-          htmlInput.value = jobOfferDetails.positionTitle ?? ''; 
-        } else if (htmlInput.name === 'hiringManagerName') {
-          htmlInput.value = jobOfferDetails.hiringManagerName ?? ''; 
-        } else if (htmlInput.name === 'hiringManagerLinkedIn') {
-          htmlInput.value = jobOfferDetails.hiringManagerLinkedIn ?? '#'; 
-        }
-      });
-    }
+    dialogInputs.forEach((input) => {
+      const htmlInput = input as HTMLInputElement;
+
+      if (htmlInput.name === 'positionTitle') {
+        this.renderer.setProperty(htmlInput, 'value', jobOfferDetails.positionTitle ?? '');
+      }
+      if (htmlInput.name === 'hiringManagerName') {
+        this.renderer.setProperty(htmlInput, 'value', jobOfferDetails.hiringManagerName ?? '');
+      }
+      if (htmlInput.name === 'hiringManagerLinkedIn') {
+        this.renderer.setProperty(htmlInput, 'value', jobOfferDetails.hiringManagerLinkedIn ?? '#');
+      }
+    });
   }
 }
